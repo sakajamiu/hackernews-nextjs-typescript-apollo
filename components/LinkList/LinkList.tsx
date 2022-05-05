@@ -2,17 +2,28 @@ import Link from '../Link'
 import { useQuery, gql } from '@apollo/client'
 
 
-const FEED_QUERY = gql`
+export const FEED_QUERY = gql`
   {
-    feed {
-      id
-      links {
+     feed {
+        id
+        links {
         id
         createdAt
         url
         description
-      }
+        postedBy {
+            id
+            name
+        }
+        votes {
+            id
+            user {
+            id
+            }
+        }
+        }
     }
+      
   }
 `
 interface Feed {
@@ -20,9 +31,19 @@ interface Feed {
         id : String;
         links: Array<{
             id: String | any;
-            createdAt: String;
+            createdAt: Date;
             url:String;
             description: String;
+            postedBy: Array<{
+                id: String| any;
+                name: String
+            }>
+            votes: Array<{
+                id: String| any;
+                user: Array<{
+                    id: String| any
+                }>
+            }>
         }>;
     };
 }
@@ -30,7 +51,6 @@ interface Feed {
 export const LinkList = () => {
     const   {loading, data}= useQuery<Feed>(FEED_QUERY)
     if(loading){
-        console.log(loading)
         return <div>loading...</div>
     }
 
@@ -39,8 +59,17 @@ export const LinkList = () => {
             {data &&(
                 <>{
                     
-                    data.feed.links.map(link => (                      
-                        <Link key={link.id} description={link.description} url={link.url}/>
+                    data.feed.links.map((link,index) => (                      
+                        <Link 
+                            key={link.id}
+                            description={link.description}
+                            url={link.url} 
+                            index={index}
+                            postedBy ={link.postedBy}
+                            createdAt={link.createdAt}
+                            votes={link.votes}
+                            id ={link.id}
+                            />
                         
                         
                     ))

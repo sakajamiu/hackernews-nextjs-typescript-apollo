@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { FEED_QUERY } from '../LinkList/LinkList';
+import { useRouter } from 'next/router';
 
 
 import { useMutation, gql } from '@apollo/client';
@@ -31,11 +33,27 @@ export  const CreateLink = () => {
     description: '',
     url: ''
   });
+  const router = useRouter()
   const [createLink] = useMutation<Post, Data>(CREATE_LINK_MUTATION, {
     variables: {
       description: formState.description,
       url: formState.url
-    }
+    },
+    update: (cache, { data: { post } }:any) => {
+      const data:any = cache.readQuery({
+        query: FEED_QUERY,
+      });
+
+      cache.writeQuery({
+        query: FEED_QUERY,
+        data: {
+          feed: {
+            links: [post, ...data.feed.links]
+          }
+        },
+      });
+    },
+    onCompleted: () => router.push("/")
   });
 
   return (
