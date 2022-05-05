@@ -1,0 +1,1 @@
+export { ToSearch as default} from './Search'
